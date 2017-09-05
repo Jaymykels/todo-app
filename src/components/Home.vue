@@ -1,13 +1,5 @@
 <template>
   <v-container>
-    <v-layout row wrap>
-      <v-flex xs12 sm6 class="text-xs-center text-sm-right">
-        <v-btn large router to="/meetups" class="info">Explore Meetups</v-btn>
-      </v-flex>
-      <v-flex xs12 sm6 class="text-xs-center text-sm-left">
-        <v-btn large router to="/meetup/new" class="info">Organize Meetup</v-btn>
-      </v-flex>
-    </v-layout>
     <v-layout>
       <v-flex xs12 class="text-xs-center">
         <v-progress-circular
@@ -18,24 +10,26 @@
           v-if="loading"></v-progress-circular>
       </v-flex>
     </v-layout>
-    <v-layout row wrap class="mt-2" v-if="!loading">
+    <v-layout row wrap>
       <v-flex xs12>
-        <v-carousel style="cursor: pointer;">
-          <v-carousel-item
-            v-for="meetup in meetups"
-            :src="meetup.imageUrl"
-            :key="meetup.id"
-            @click="onLoadMeetup(meetup.id)">
-            <div class="title">
-              {{ meetup.title }}
-            </div>
-          </v-carousel-item>
-        </v-carousel>
-      </v-flex>
-    </v-layout>
-    <v-layout row wrap  class="mt-2">
-      <v-flex xs12 class="text-xs-center">
-       <p>Join our awesome meetups!</p>
+        <v-card>
+          <v-list two-line>
+            <v-list-tile avatar ripple v-for="(item, index) in todos" v-bind:key="item.title">
+              <v-list-tile-content>
+                <v-list-tile-title>{{ item.title }}</v-list-tile-title>
+                <v-list-tile-sub-title class="grey--text text--darken-4">{{ item.description }}</v-list-tile-sub-title>
+              </v-list-tile-content>
+              <v-list-tile-action>
+                <v-list-tile-action-text>{{ item.date }}</v-list-tile-action-text>
+                <v-list-tile-action-text>{{ item.time }}</v-list-tile-action-text>                
+              </v-list-tile-action>
+              <v-btn @click="remove(todos.indexOf(item))">Delete</v-btn>
+              <v-btn v-if="!item.completed" @click="completed(todos.indexOf(item))">Complete</v-btn>
+              <v-btn flat v-else><v-icon>done</v-icon>Completed</v-btn>
+              <v-divider v-if="index + 1 < todos.length"></v-divider>
+            </v-list-tile>
+          </v-list>
+        </v-card>
       </v-flex>
     </v-layout>
   </v-container>
@@ -44,16 +38,19 @@
 <script>
   export default {
     computed: {
-      meetups () {
-        return this.$store.getters.featuredMeetups
+      todos () {
+        return this.$store.getters.todos
       },
       loading () {
         return this.$store.getters.loading
       }
     },
     methods: {
-      onLoadMeetup (id) {
-        this.$router.push('/meetups/' + id)
+      completed (todo) {
+        this.$store.dispatch('completeTodo', this.todos[todo])
+      },
+      remove (todo) {
+        this.$store.dispatch('removeTodo', this.todos[todo])
       }
     }
   }
